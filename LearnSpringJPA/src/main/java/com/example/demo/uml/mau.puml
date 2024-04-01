@@ -1,0 +1,61 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+
+skinparam DatabaseBorderColor #teal
+skinparam DatabaseBackgroundColor #bisque
+skinparam sequence {
+ParticipantBackgroundColor #teal
+ParticipantFontColor #white
+ParticipantFontSize 14
+ParticipantFontStyle bold
+LifeMineBorderColor #teal
+LifeMineBackgroundColor #aliceblue
+ArrowColor #teal
+ActorBorderColor #teal
+GroupBorderThickness 1
+GroupBorderColor #teal
+GroupHeaderFontColor #white
+GroupBackgroundColor #teal
+GroupFontColor #teal
+}
+autonumber
+hide footbox
+actor User as u
+participant "FrontEnd" as fe
+participant "Backend IAM" as be
+database "Database" as db
+
+u -> fe++ : Request Login
+fe -> fe: Validate email/password
+alt error syntax
+    fe --> u: return message ''Email/Password invalid''
+    else correct syntax
+    fe --> be : Call API (/api/v1/login)
+    activate be
+
+    be -> db: Get email/ password
+    activate db
+    db -> be: Result
+    deactivate db
+    be -> be: Validate result (Bcrypt encoder password)
+    alt error account
+        alt email not exist
+            be --> fe: Response
+            fe --> u: return message ''Email not exist''
+            else account has been locked
+            be --> fe: Response
+            fe --> u: return message ''Account has been locked''
+            else error password
+            be --> fe: Response
+            fe --> u: return message ''Password is wrong''
+        end
+
+        else correct account
+        be --> fe : (Access and refresh token) + Response
+        deactivate be
+        fe --> u: return notify ''Login Success''
+        deactivate fe
+    end
+end
+@enduml

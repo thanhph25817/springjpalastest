@@ -1,0 +1,48 @@
+@startuml
+'https://plantuml.com/class-diagram
+skinparam DatabaseBackgroundColor #bisque
+skinparam DatabaseBorderColor #teal
+skinparam NoteFontColor #444
+skinparam NoteBackgroundColor #powderblue
+skinparam NoteBorderColor #teal
+autonumber
+skinparam sequence{
+ParticipantBackgroundColor #teal
+ParticipantFontColor white
+ParticipantFontStyle bold
+ArrowColor #teal
+GroupBorderColor #teal
+ActorFontColor #teal
+ActorBorderColor #teal
+}
+hidefootbox
+actor Actor as a
+participant "Front-end" as fe
+participant "Back-end" as be
+database "Database" as db
+
+a->fe:Send request to go to login form
+fe->be:go to login form
+be --> fe:respone login function
+fe-->a:respone login request
+a->fe:input account
+fe->be:check account
+alt error syntax
+be-->fe:Not validate
+fe-->a:show some required of each field
+else
+be-->fe:Valid
+fe-->a:Not show some required of each field
+end
+fe->be:Send account to authentication
+be->db:Send account to DB and check
+alt
+db-->be:Not found account
+be-->fe:Unauthorization
+fe-->a:respone not found
+else
+db-->be:found account
+be-->fe : authorization
+fe-->a:Respone to home page
+end
+@enduml
